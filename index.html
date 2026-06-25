@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unidad 31 - Plataforma de Estudio Interactiva</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons para una interfaz moderna -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f7fa',
+                            100: '#eaeef4',
+                            200: '#d0dae7',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para barras de scroll fluidas */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        /* Efecto de foco y pulso suave */
+        @keyframes target-pulse {
+            0% { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 0 0px rgba(59, 130, 246, 0.3); }
+            50% { border-color: rgba(59, 130, 246, 1); box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+            100% { border-color: rgba(226, 232, 240, 1); box-shadow: 0 0 0 0px rgba(59, 130, 246, 0); }
+        }
+        .pulse-active {
+            animation: target-pulse 2s ease-out;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200 overflow-hidden flex flex-col font-sans">
+
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <header class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex-none z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-600 text-white rounded-lg">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">Unidad 31: Gramática Predictiva & Planes</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Plataforma de Alto Rendimiento para David</p>
+                </div>
+            </div>
+            
+            <!-- Dashboard de Progreso & Configuración -->
+            <div class="flex items-center flex-wrap gap-4 w-full md:w-auto justify-end">
+                <!-- Selector de Modo de Feedback -->
+                <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-amber-500"></i>
+                        Asesor Brutal:
+                    </span>
+                    <button id="toggleTono" onclick="toggleTonoFeedback()" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-300 dark:bg-slate-600" role="switch" aria-checked="false">
+                        <span id="toggleTonoBg" class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    </button>
+                </div>
+
+                <!-- Barra de Progreso Global -->
+                <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 min-w-[180px]">
+                    <div class="flex-1 bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                        <div id="progresoGlobal" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                    <span id="textoProgreso" class="text-xs font-bold text-slate-700 dark:text-slate-300">0/21 (0%)</span>
+                </div>
+
+                <!-- Botón de Exportar Reporte -->
+                <button onclick="generarReporte()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-sm font-semibold rounded-lg transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Exportar Reporte
+                </button>
+
+                <!-- Botón Modo Oscuro -->
+                <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <i data-lucide="sun" id="sunIcon" class="w-5 h-5 hidden"></i>
+                    <i data-lucide="moon" id="moonIcon" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVEGACIÓN MÓVIL (Pestañas Teoría / Ejercicios) -->
+    <div class="flex md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex-none">
+        <button onclick="switchTab('teoria')" id="tabTeoria" class="flex-1 py-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600">
+            <span class="flex items-center justify-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i> Teoría Rigurosa
+            </span>
+        </button>
+        <button onclick="switchTab('ejercicios')" id="tabEjercicios" class="flex-1 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 dark:text-slate-400">
+            <span class="flex items-center justify-center gap-2">
+                <i data-lucide="pen-tool" class="w-4 h-4"></i> Práctica Activa
+            </span>
+        </button>
+    </div>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL (SPLIT-SCREEN) -->
+    <main class="flex-1 flex overflow-hidden max-w-8xl w-full mx-auto">
+        
+        <!-- PANEL IZQUIERDO: TEORÍA RIGUROSA -->
+        <section id="panelTeoria" class="w-full md:w-1/2 h-full overflow-y-auto px-6 py-6 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <div class="max-w-2xl mx-auto space-y-8">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Conceptos Fundamentales</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Navega y asimila las reglas de posicionamiento y asimetrías de certeza antes de formular.</p>
+                </div>
+
+                <!-- Teoría 1: Be Going To -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-1">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">1. Be Going To</span>
+                        <button onclick="scrollToExercise('ex-sec-1')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        Se utiliza para expresar intenciones y decisiones tomadas **antes** del momento de hablar (planes ya trazados) y para realizar predicciones sólidas fundamentadas en **evidencias físicas y presentes** observables.
+                    </p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-xs font-mono space-y-2">
+                        <p class="text-slate-600 dark:text-slate-400"><strong class="text-blue-600 dark:text-blue-400">Uso Intención:</strong> "I am going to launch a new marketing campaign next month."</p>
+                        <p class="text-slate-600 dark:text-slate-400"><strong class="text-blue-600 dark:text-blue-400">Uso Evidencia:</strong> "Look at those reports; we are going to face losses."</p>
+                    </div>
+                </article>
+
+                <!-- Teoría 2: Will -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-2">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">2. Will</span>
+                        <button onclick="scrollToExercise('ex-sec-2')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        Se emplea en decisiones espontáneas tomadas en el **instante exacto** en que se habla, promesas, ofertas de asistencia directa y predicciones basadas puramente en **conjeturas u opiniones subjetivas** (no en datos o evidencias del entorno actual).
+                    </p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-xs font-mono space-y-2">
+                        <p class="text-slate-600 dark:text-slate-400"><strong class="text-blue-600 dark:text-blue-400">Decisión Espontánea:</strong> "The server is down. I'll call IT."</p>
+                        <p class="text-slate-600 dark:text-slate-400"><strong class="text-blue-600 dark:text-blue-400">Predicción Subjetiva:</strong> "I think AI will disrupt our industry in 5 years."</p>
+                    </div>
+                </article>
+
+                <!-- Teoría 3: Futuro y Adverbios -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-3">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">3. Adverbios: Position</span>
+                        <button onclick="scrollToExercise('ex-sec-3')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        El dominio sintáctico de los adverbios de probabilidad depende de si la oración es **afirmativa o negativa**:
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-lg">
+                            <span class="font-bold text-emerald-800 dark:text-emerald-400 block mb-1">Afirmativas: Tras "Will"</span>
+                            <code class="font-mono text-slate-700 dark:text-slate-300">We will <strong>definitely</strong> expand.</code>
+                        </div>
+                        <div class="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg">
+                            <span class="font-bold text-rose-800 dark:text-rose-400 block mb-1">Negativas: Antes de "Won't"</span>
+                            <code class="font-mono text-slate-700 dark:text-slate-300">We <strong>probably</strong> won't downsize.</code>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Teoría 4: Modales + "Well" -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-4">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">4. Modales + "Well"</span>
+                        <button onclick="scrollToExercise('ex-sec-4')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        Utilizamos <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">might</code>, <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">could</code> o <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">may</code> para sugerir posibilidad en el futuro. Al insertar el intensificador **"well"** tras el verbo modal, impulsamos significativamente el nivel de probabilidad, aproximándolo a una certeza alta.
+                    </p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-xs font-mono space-y-1 text-slate-600 dark:text-slate-400">
+                        <p><strong class="text-indigo-600">Posibilidad media:</strong> We may encounter delays.</p>
+                        <p><strong class="text-indigo-600">Posibilidad alta (+well):</strong> We may <strong>well</strong> encounter delays. (Es sumamente probable).</p>
+                    </div>
+                </article>
+
+                <!-- Teoría 5: Think, Doubt, Would Prefer -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-5">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">5. Think, Doubt & Preferences</span>
+                        <button onclick="scrollToExercise('ex-sec-5')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <div class="text-sm leading-relaxed space-y-3">
+                        <p>
+                            <strong class="text-slate-900 dark:text-white">Traslación de Negación:</strong> En lugar de formular <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">I think we won't succeed</code>, el estándar nativo exige trasladar la negación al primer verbo: <code class="bg-slate-100 dark:bg-slate-800 px-1 font-bold text-blue-600 dark:text-blue-400">I don't think we will succeed</code>.
+                        </p>
+                        <p>
+                            <strong class="text-slate-900 dark:text-white">Doubt:</strong> Expresa escepticismo activo. Equivale directamente a no creer que ocurra algo: <code class="bg-slate-100 dark:bg-slate-800 px-1 font-mono">I doubt they will scale.</code>
+                        </p>
+                        <p>
+                            <strong class="text-slate-900 dark:text-white">Preferencias futuras:</strong> Evitamos "I will prefer". Preferimos usar <code class="bg-slate-100 dark:bg-slate-800 px-1 font-mono">would prefer to [verb]</code> o bien <code class="bg-slate-100 dark:bg-slate-800 px-1 font-mono">would rather [bare infinitive]</code>.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Teoría 6: It + Adjective of Probability + That -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-6">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">6. It + Adj. Probability + That</span>
+                        <button onclick="scrollToExercise('ex-sec-6')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        La escala de certeza determina la elección del adjetivo en la estructura sintáctica: <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono text-blue-600">It is [adjective] that...</code>
+                    </p>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-1">
+                            <span class="font-semibold text-slate-500">0% Certeza</span>
+                            <span class="font-mono text-rose-500">impossible</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-1">
+                            <span class="font-semibold text-slate-500">25% Probabilidad</span>
+                            <span class="font-mono text-amber-500">unlikely</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-1">
+                            <span class="font-semibold text-slate-500">50% Probabilidad</span>
+                            <span class="font-mono text-blue-500">possible</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-1">
+                            <span class="font-semibold text-slate-500">75% Probabilidad</span>
+                            <span class="font-mono text-indigo-500">probable / likely</span>
+                        </div>
+                        <div class="flex items-center justify-between pb-1">
+                            <span class="font-semibold text-slate-500">100% Certeza</span>
+                            <span class="font-mono text-emerald-500">certain / inevitable</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Teoría 7: Present Continuous para Planes -->
+                <article class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-200 shadow-sm" id="teoria-7">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">7. Continuous Plans</span>
+                        <button onclick="scrollToExercise('ex-sec-7')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            Saltar a Práctica <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-4">
+                        Diferenciamos la definición o solidez de un plan futuro utilizando construcciones específicas:
+                    </p>
+                    <div class="space-y-3 text-xs">
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded">
+                            <strong class="text-slate-900 dark:text-white block font-mono">I'm thinking about + V-ing</strong>
+                            Consideración abierta. No hay estructura fija ni fechas.
+                        </div>
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded">
+                            <strong class="text-slate-900 dark:text-white block font-mono">I'm planning to + Inf</strong>
+                            Plan estructurado, pasos predefinidos y presupuesto enfocado.
+                        </div>
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded">
+                            <strong class="text-slate-900 dark:text-white block font-mono">I'm hoping to + Inf</strong>
+                            Expectativa positiva de logro, pero con variables externas fuera de control.
+                        </div>
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded">
+                            <strong class="text-slate-900 dark:text-white block font-mono">I'm wondering whether to + Inf</strong>
+                            Indecisión activa entre dos alternativas claras (elegir opción A o B / actuar o no actuar).
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- PANEL DERECHO: PRÁCTICA ACTIVA (WORKSPACE DE EJERCICIOS) -->
+        <section id="panelEjercicios" class="hidden md:block w-full md:w-1/2 h-full overflow-y-auto px-6 py-6 bg-white dark:bg-slate-950">
+            <div class="max-w-2xl mx-auto space-y-10">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Sandbox Práctico</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Completa cada bloque interactivo. Autoevalúa tu nivel sintáctico para sumar puntos al Score.</p>
+                </div>
+
+                <!-- SECCIÓN 1: BE GOING TO -->
+                <fieldset id="ex-sec-1" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 1: Be Going To
+                    </legend>
+                    
+                    <!-- Ex 1.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">1.1</span> Tienes informes que muestran pérdidas constantes. Redacta una predicción objetiva sobre el trimestre utilizando la evidencia presente.
+                        </label>
+                        <input type="text" id="ans-1-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-1-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('1-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 1.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">1.2</span> Has reservado un local comercial y pagado el depósito para tu nueva sede. Expresa este plan corporativo preestablecido.
+                        </label>
+                        <input type="text" id="ans-1-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-1-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('1-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 1.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">1.3</span> Un cliente de consultoría muestra nula disposición a escuchar tus recomendaciones. Predice el resultado basado en esta actitud física y real.
+                        </label>
+                        <input type="text" id="ans-1-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-1-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('1-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 2: WILL -->
+                <fieldset id="ex-sec-2" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 2: Will
+                    </legend>
+
+                    <!-- Ex 2.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">2.1</span> El servidor de la base de datos se cae repentinamente mientras estás en una reunión. Expresa una decisión o acción inmediata.
+                        </label>
+                        <input type="text" id="ans-2-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-2-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('2-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 2.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">2.2</span> Redacta una promesa de alta calidad de servicio (delivery a tiempo) a un nuevo cliente para mitigar su aversión al riesgo.
+                        </label>
+                        <input type="text" id="ans-2-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-2-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('2-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 2.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">2.3</span> Proyecta cómo crees que evolucionará el autoempleo en tu sector en 15 años (basándote únicamente en tu intuición subjetiva).
+                        </label>
+                        <input type="text" id="ans-2-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-2-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('2-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 3: FUTURO Y ADVERBIOS -->
+                <fieldset id="ex-sec-3" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 3: Futuro y Adverbios
+                    </legend>
+
+                    <!-- Ex 3.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">3.1</span> Expresa con certeza absoluta negativa utilizando <strong class="font-mono">definitely</strong> que tu empresa no reducirá precios el próximo año fiscal.
+                        </label>
+                        <input type="text" id="ans-3-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-3-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('3-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 3.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">3.2</span> Expresa con alta probabilidad afirmativa utilizando <strong class="font-mono">probably</strong> que el MBA te exigirá más de 20 horas de estudio semanales.
+                        </label>
+                        <input type="text" id="ans-3-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-3-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('3-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 3.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">3.3</span> Corrige el error de sintaxis de la siguiente oración: <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-xs">"We won't certainly sign this contract if they don't modify clause 4."</code>
+                        </label>
+                        <input type="text" id="ans-3-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-3-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('3-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 4: MODALES + WELL -->
+                <fieldset id="ex-sec-4" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 4: Verbos Modales + "Well"
+                    </legend>
+
+                    <!-- Ex 4.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">4.1</span> Tienes un cliente potencial (lead) sumamente interesado y calificado. Expresa que es altamente probable cerrar la venta esta semana usando <strong class="font-mono">may well</strong>.
+                        </label>
+                        <input type="text" id="ans-4-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-4-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('4-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 4.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">4.2</span> Tu principal proveedor está en huelga nacional. Expresa una probabilidad moderada/alta de experimentar retrasos logísticos utilizando <strong class="font-mono">might well</strong>.
+                        </label>
+                        <input type="text" id="ans-4-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-4-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('4-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 4.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">4.3</span> Convierte una suposición de riesgo débil: <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-xs">"We could face some complaints."</code> en una proyección de probabilidad mucho más robusta y seria con el intensificador adecuado.
+                        </label>
+                        <input type="text" id="ans-4-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-4-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('4-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 5: THINK, DOUBT, WOULD PREFER -->
+                <fieldset id="ex-sec-5" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 5: Think, Doubt & Preferences
+                    </legend>
+
+                    <!-- Ex 5.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">5.1</span> Quieres expresar que crees que tu competidor principal no logrará replicar tu modelo de negocio de consultoría. Aplica la regla estricta de traslación de negación.
+                        </label>
+                        <input type="text" id="ans-5-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-5-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('5-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 5.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">5.2</span> Comunica a un socio que prefieres invertir en automatización de procesos en lugar de contratar más personal administrativo de apoyo (utiliza <strong class="font-mono">would rather</strong>).
+                        </label>
+                        <input type="text" id="ans-5-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-5-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('5-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 5.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">5.3</span> Expresa un escepticismo directo y formal sobre la recuperación del mercado de valores antes del cierre del año fiscal utilizando <strong class="font-mono">doubt</strong>.
+                        </label>
+                        <input type="text" id="ans-5-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-5-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('5-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 6: IT + ADJECTIVE OF PROBABILITY + THAT -->
+                <fieldset id="ex-sec-6" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 6: It + Adjective + That
+                    </legend>
+
+                    <!-- Ex 6.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">6.1</span> Plantea un análisis de riesgos donde determines que es altamente improbable (<strong class="font-mono">unlikely</strong>) que el sistema ERP de la empresa falle tras la auditoría integral.
+                        </label>
+                        <input type="text" id="ans-6-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-6-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('6-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 6.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">6.2</span> Comunica formalmente que si no se implementan tareas de mantenimiento técnico en los servidores, la caída del rendimiento del software es inevitable (<strong class="font-mono">inevitable</strong>).
+                        </label>
+                        <input type="text" id="ans-6-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-6-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('6-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 6.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">6.3</span> Redacta que es altamente probable que David apruebe su examen de economía del MBA usando la estructura personal con <strong class="font-mono">likely</strong> (Sujeto + be likely + infinitive).
+                        </label>
+                        <input type="text" id="ans-6-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-6-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('6-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN 7: PRESENT CONTINUOUS (PLANES) -->
+                <fieldset id="ex-sec-7" class="border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6 transition-all duration-300">
+                    <legend class="px-3 text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full py-0.5">
+                        Bloque 7: Continuous Plans
+                    </legend>
+
+                    <!-- Ex 7.1 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">7.1</span> Te debates entre delegar la gestión tributaria de tu firma a un gestor externo o seguir encargándote tú. Expresa esta disyuntiva utilizando <strong class="font-mono">wondering whether to</strong>.
+                        </label>
+                        <input type="text" id="ans-7-1" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-7-1" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('7-1')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 7.2 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">7.2</span> Tienes el calendario del MBA planificado, horarios adaptados y la matrícula pagada para iniciar en septiembre. Redacta este plan robusto usando <strong class="font-mono">planning to</strong>.
+                        </label>
+                        <input type="text" id="ans-7-2" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-7-2" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('7-2')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+
+                    <!-- Ex 7.3 -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium block">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">7.3</span> Estás sopesando la posibilidad conceptual de expandir tu consultoría hacia mercados de habla inglesa, pero aún no has iniciado cotizaciones ni análisis financieros reales. Utiliza la estructura de baja definición pertinente (<strong class="font-mono">thinking about</strong>).
+                        </label>
+                        <input type="text" id="ans-7-3" placeholder="Type your answer here..." class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <div id="check-box-7-3" class="hidden space-y-3 mt-3"></div>
+                        <button onclick="verificarEjercicio('7-3')" class="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold rounded-lg transition-colors">Comprobar</button>
+                    </div>
+                </fieldset>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER / BANCO DE DATOS SINTÁCTICOS -->
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex-none text-center text-xs text-slate-500 dark:text-slate-400">
+        <p>Unidad de Práctica Profesional Avanzada • David's Workspace • Diseñado con Rigor y Cero Complacencia.</p>
+    </footer>
+
+    <!-- LOGIC SCRIPTS -->
+    <script>
+        // Inicializar Lucide Icons
+        lucide.createIcons();
+
+        // Estado Global de la Aplicación
+        const appState = {
+            darkMode: false,
+            feedbackBrutal: false,
+            score: {}, // Almacena ID del ejercicio -> true/false (completado correctamente)
+            totalEjercicios: 21,
+            respuestasUsuario: {},
+            respuestasModelos: {
+                "1-1": [
+                    "We are going to face losses this quarter.",
+                    "The company is going to experience financial losses this quarter.",
+                    "According to the reports, it is going to be a difficult financial quarter."
+                ],
+                "1-2": [
+                    "I am going to open a new office next month.",
+                    "We are going to open our new office next month.",
+                    "I am going to launch the new branch next month."
+                ],
+                "1-3": [
+                    "The client is not going to listen to our recommendations.",
+                    "They are not going to implement our advice.",
+                    "He is not going to follow our consulting guidelines."
+                ],
+                "2-1": [
+                    "I'll call the IT support immediately.",
+                    "I will contact the database administrator right away.",
+                    "I'll fix the server issue immediately."
+                ],
+                "2-2": [
+                    "We will deliver the final project on time, I promise.",
+                    "We will guarantee timely delivery of all key results.",
+                    "I will ensure the service is delivered strictly on schedule."
+                ],
+                "2-3": [
+                    "I think self-employment will grow significantly in fifteen years.",
+                    "I believe freelance consulting will dominate our sector in fifteen years.",
+                    "In my opinion, freelance work will expand in our industry."
+                ],
+                "3-1": [
+                    "We definitely won't reduce our prices next fiscal year.",
+                    "Our company definitely won't lower prices next year.",
+                    "We definitely won't drop prices next fiscal year."
+                ],
+                "3-2": [
+                    "The MBA will probably require more than 20 hours of study per week.",
+                    "Studying for the MBA will probably take up more than 20 hours a week.",
+                    "The MBA will probably demand more than twenty hours of study weekly."
+                ],
+                "3-3": [
+                    "We certainly won't sign this contract if they don't modify clause 4.",
+                    "We certainly won't sign this contract unless they change clause four."
+                ],
+                "4-1": [
+                    "We may well close the sale this week.",
+                    "We may well secure the deal this week.",
+                    "We may well finalize the contract this week."
+                ],
+                "4-2": [
+                    "We might well face logistical delays due to the supplier strike.",
+                    "We might well experience delays because of the main supplier strike.",
+                    "Our company might well suffer delays owing to the national strike."
+                ],
+                "4-3": [
+                    "We might well face some complaints.",
+                    "We may well face some complaints.",
+                    "We could well face some complaints."
+                ],
+                "5-1": [
+                    "I don't think my main competitor will succeed in replicating my business model.",
+                    "I don't think our competitor will replicate our business model.",
+                    "I don't think they will successfully copy our consulting model."
+                ],
+                "5-2": [
+                    "I would rather invest in process automation than hire more administrative staff.",
+                    "I'd rather invest in automating processes than hire more administrative support.",
+                    "I'd rather spend budget on automation than hire extra administrative staff."
+                ],
+                "5-3": [
+                    "I doubt the stock market will recover before the end of the fiscal year.",
+                    "I doubt that the stock market will bounce back before the fiscal year ends.",
+                    "I doubt the stock market will experience a recovery before the fiscal year closing."
+                ],
+                "6-1": [
+                    "It is unlikely that the ERP system will fail after the comprehensive audit.",
+                    "It is unlikely that the ERP will crash after the audit process.",
+                    "It is unlikely that our ERP software will fail following the audit."
+                ],
+                "6-2": [
+                    "It is inevitable that software performance will drop if we don't perform maintenance.",
+                    "It is inevitable that we will lose server performance if we neglect maintenance.",
+                    "It is inevitable that performance will decrease without regular maintenance."
+                ],
+                "6-3": [
+                    "David is likely to pass his MBA economics exam.",
+                    "David is highly likely to pass his economics exam.",
+                    "David is likely to succeed in his MBA economics exam."
+                ],
+                "7-1": [
+                    "I am wondering whether to delegate tax management to an external agency or do it myself.",
+                    "I am wondering whether to outsource my taxes or keep handling them myself.",
+                    "I am wondering whether to hire a consultant for my taxes or manage them on my own."
+                ],
+                "7-2": [
+                    "I am planning to start my MBA in September.",
+                    "I am planning to begin the MBA program in September.",
+                    "We are planning to start the academic program this September."
+                ],
+                "7-3": [
+                    "I am thinking about expanding my consulting business into English-speaking markets.",
+                    "I'm thinking about diversifying our services into the English-speaking market.",
+                    "I am thinking about scaling our business to the UK and US markets."
+                ]
+            }
+        };
+
+        // Claves analíticas / Feedback Sintáctico Profesional
+        const keysAnalisis = {
+            "1-1": "Uso de 'be going to' mandatorio. Los estados financieros deficientes actúan como evidencia física directa y medible en el presente. Cualquier formulación con 'will' denota opinión subjetiva y debilidad analítica.",
+            "1-2": "Decisión tomada previamente con desembolso económico (depósito). Al ser un plan corporativo consolidado, 'be going to' es la única opción que transmite seriedad de ejecución.",
+            "1-3": "La conducta observable en reuniones presenciales es un hecho fáctico del presente, por tanto se predice un resultado adverso empleando la estructura de evidencia: 'be going to' en su variante negativa.",
+            "2-1": "Acción reactiva en tiempo real. Al ser una decisión espontánea durante una crisis, se emplea exclusivamente 'will/I'll' para reflejar inmediatez operativa.",
+            "2-2": "Para mitigar la aversión al riesgo de un cliente de consultoría de alto nivel, la promesa explícita requiere la determinación indiscutible de 'will/I will'.",
+            "2-3": "Proyección a 15 años sin datos empíricos tangibles en la mano. Dado que es una conjetura u opinión subjetiva intuitiva, se debe estructurar con 'I think / I believe' + 'will'.",
+            "3-1": "La regla de oro de los adverbios de certeza extrema en negativo: 'definitely' precede obligatoriamente al auxiliar contraído: 'definitely won't'. Escribir 'won't definitely' es un error de sintaxis que debilita el registro formal.",
+            "3-2": "Adverbio afirmativo de alta probabilidad: 'probably' se sitúa rigurosamente posterior al auxiliar 'will' (will probably).",
+            "3-3": "El adverbio 'certainly' (certeza absoluta) en oraciones negativas exige ir antes de la contracción: 'We certainly won't sign...'. Corregir esta estructura demuestra solidez técnica.",
+            "4-1": "La adición de 'well' tras el modal de posibilidad aumenta la probabilidad de éxito de un 50% a un 80% aprox. Es ideal para reportes internos de pipeline comercial.",
+            "4-2": "Al existir una huelga directa, el riesgo de retraso es alto. Usar 'might well' transmite al socio que la probabilidad de impacto logístico es considerablemente severa.",
+            "4-3": "El verbo modal simple 'could' expresa baja posibilidad. Al incorporar el intensificador 'well' ('might well' o 'may well'), dotas al análisis de riesgos de mayor convicción ejecutiva.",
+            "5-1": "Regla de traslación de negación: No expreses 'I think he won't'. Traslada la carga negativa al verbo principal ('I don't think') y mantén la subordinada afirmativa ('will replicate').",
+            "5-2": "Para expresar decisiones estratégicas de asignación de capital, la estructura formal óptima es 'would rather' seguida del verbo en infinitivo sin 'to' (bare infinitive). Evita 'will prefer'.",
+            "5-3": "El uso del verbo de duda formal 'doubt' dota de escepticismo técnico a la oración sin necesidad de emplear auxiliares negativos complejos.",
+            "6-1": "Sintaxis: 'It is unlikely that...' determina baja probabilidad. Recuerda que la cláusula subordinada posterior a 'that' debe formularse preferiblemente en futuro con 'will'.",
+            "6-2": "El adjetivo 'inevitable' se sitúa en la cúspide de la escala de certeza (100% de probabilidad de ocurrencia si se desatiende el mantenimiento). Estructura formal y aséptica.",
+            "6-3": "La estructura personal con 'likely' ('Subject + be likely + to-infinitive') es infinitamente más común y elegante en el inglés corporativo de alto nivel que la estructura impersonal 'It is likely that...'.",
+            "7-1": "Indecisión activa entre dos cursos de acción mutuamente excluyentes (outsourcing fiscal o autogestión). 'Wondering whether to' define perfectamente este escenario de evaluación técnica.",
+            "7-2": "Al estar la matrícula pagada y los horarios coordinados con el MBA, la planificación posee un esqueleto financiero sólido. Requiere obligatoriamente 'planning to'.",
+            "7-3": "Idea conceptual inicial sin viabilidad financiera estructurada ni análisis de costes. Se define mediante baja fidelidad con 'thinking about + gerundio (V-ing)'."
+        };
+
+        // Feedback Brutalmente Honesto (Rigor, sin adornos, enfocado en el impacto empresarial)
+        const feedbackBrutalDict = {
+            "1-1": "Si utilizas 'will' aquí, estás cometiendo un error básico de análisis financiero. Tienes los estados financieros de pérdidas en frente de tus ojos. No es una intuición mística; es un hecho. Usa 'going to' o tus informes de auditoría perderán toda credibilidad.",
+            "1-2": "Ya pagaste el depósito. El flujo de caja de tu empresa ya se ha visto afectado. Esto no es un mero pensamiento; es un hecho estratégico cerrado. Utilizar cualquier cosa distinta a 'planning to' o 'going to' ante tus socios demuestra falta de determinación ejecutiva.",
+            "1-3": "El cliente te ignora en las reuniones de consultoría en el presente. Esa es la cruda realidad del negocio. Tu predicción sobre el fracaso de la recomendación debe ser directa: 'They are going to fail'. Deja las sutilezas de lado; la evidencia está servida.",
+            "2-1": "Ante un colapso crítico de base de datos en plena reunión, titubear con estructuras complejas o planes es un suicidio operativo. Es una reacción espontánea: 'I will handle it'. Rapidez y mando directo.",
+            "2-2": "Si dudas al hacer una promesa de delivery a un cliente de gran tamaño, perderás la cuenta antes de empezar. El uso de 'will' aquí no es opcional, es el único verbo que establece un compromiso legal y reputacional incuestionable.",
+            "2-3": "A 15 años vista en el sector tecnológico/freelance, nadie tiene datos infalibles. Si afirmas algo con 'going to', pecas de soberbio o de ingenuo. Es una conjetura intuitiva pura: estructúrala con 'I think... will'.",
+            "3-1": "Posicionar 'definitely' después de 'won't' es un error que resta pulcritud a cualquier propuesta formal de precios. Se escribe 'We definitely won't'. No dejes que un detalle sintáctico devalúe tu autoridad frente a la junta directiva.",
+            "3-2": "La posición del adverbio no es negociable en juntas de nivel directivo. 'Will probably require' transmite orden. 'Probably will' suena descuidado en informes corporativos escritos.",
+            "3-3": "El error en 'We won't certainly' rompe la cohesión del argumento de negociación. 'We certainly won't' deja claro al cliente que la cláusula 4 es un límite absoluto e infranqueable.",
+            "4-1": "En el pipeline comercial, reportar un 'might close' (50% probabilidad) cuando el lead está listo para firmar es un error de previsión financiera. Añade 'may well close' para reportar el estado de probabilidad real a tus directores.",
+            "4-2": "Hay huelga del único proveedor. Es una amenaza alta para la cadena de suministro. Si reportas una posibilidad débil con 'could face', estás maquillando la gravedad de la situación. Usa 'might well' para forzar planes de contingencia.",
+            "4-3": "'We could face complaints' suena a excusa barata y poco preparada. El uso de 'We may well face some complaints' asume la responsabilidad del riesgo de forma analítica y proactiva antes de que el cliente explote.",
+            "5-1": "'I think my competitor won't replicate...' es una construcción sintáctica de nivel básico. Al trasladar la negación al inicio ('I don't think they will'), elevas tu estándar comunicativo al nivel de negociación internacional.",
+            "5-2": "Decir 'I will prefer' demuestra desconocimiento de la pragmática en inglés para formular opciones. Usa 'I would rather invest' para delimitar claramente tus prioridades de capital y convencer al socio de que la automatización es el camino.",
+            "5-3": "En entornos macroeconómicos, maquillar la duda con largas explicaciones denota inseguridad. El uso directo de 'I doubt the market will recover' proyecta un análisis frío, analítico y realista.",
+            "6-1": "'It is unlikely that... will fail' define un riesgo bajo mitigado de forma aséptica. Asegúrate de formular con precisión; un error de posicionamiento aquí puede alarmar innecesariamente al comité de control de riesgos.",
+            "6-2": "No hay términos medios: sin mantenimiento de servidores, la infraestructura colapsa. Utilizar 'It is inevitable that...' elimina la discusión especulativa y prioriza la inversión en mantenimiento preventivo.",
+            "6-3": "Evita rodeos mecánicos como 'It is probable that David will...'. El uso de 'David is likely to pass' es el estándar corporativo moderno: ágil, directo, enfocado en el sujeto y de alta gama lingüística.",
+            "7-1": "Estás perdiendo dinero al autogestionar tus impuestos o arriesgándote a una multa. Este debate binario exige la precisión de 'wondering whether to' para evaluar el coste de oportunidad financiero.",
+            "7-2": "Tienes matrícula pagada, plaza asignada y calendario coordinado. Si dices que estás 'thinking about starting', denotas falta de compromiso frente a tu red profesional. El plan ya está en marcha: 'I am planning to start'.",
+            "7-3": "Expandir un negocio de consultoría a mercados anglosajones sin costes, tarifas estimadas ni análisis de conversión de divisas es solo una fantasía. No lo llames plan. Llámalo por su nombre de baja definición: 'I'm thinking about expanding'."
+        };
+
+        // Cambiar entre Teoría y Ejercicios en Móvil
+        function switchTab(tab) {
+            const panelTeoria = document.getElementById('panelTeoria');
+            const panelEjercicios = document.getElementById('panelEjercicios');
+            const tabTeoria = document.getElementById('tabTeoria');
+            const tabEjercicios = document.getElementById('tabEjercicios');
+
+            if (tab === 'teoria') {
+                panelTeoria.classList.remove('hidden');
+                panelEjercicios.classList.add('hidden');
+                tabTeoria.classList.add('border-blue-600', 'text-blue-600');
+                tabTeoria.classList.remove('border-transparent', 'text-slate-500');
+                tabEjercicios.classList.remove('border-blue-600', 'text-blue-600');
+                tabEjercicios.classList.add('border-transparent', 'text-slate-500');
+            } else {
+                panelTeoria.classList.add('hidden');
+                panelEjercicios.classList.remove('hidden');
+                tabTeoria.classList.remove('border-blue-600', 'text-blue-600');
+                tabTeoria.classList.add('border-transparent', 'text-slate-500');
+                tabEjercicios.classList.add('border-blue-600', 'text-blue-600');
+                tabEjercicios.classList.remove('border-transparent', 'text-slate-500');
+            }
+        }
+
+        // Modo de Feedback: Estándar o Asesor Brutal
+        function toggleTonoFeedback() {
+            appState.feedbackBrutal = !appState.feedbackBrutal;
+            const toggleBg = document.getElementById('toggleTonoBg');
+            const toggleBtn = document.getElementById('toggleTono');
+
+            if (appState.feedbackBrutal) {
+                toggleBg.classList.replace('translate-x-0', 'translate-x-5');
+                toggleBtn.classList.replace('bg-slate-300', 'bg-amber-500');
+                toggleBtn.classList.replace('dark:bg-slate-600', 'bg-amber-500');
+            } else {
+                toggleBg.classList.replace('translate-x-5', 'translate-x-0');
+                toggleBtn.classList.replace('bg-amber-500', 'bg-slate-300');
+                if (document.documentElement.classList.contains('dark')) {
+                    toggleBtn.classList.add('dark:bg-slate-600');
+                }
+            }
+            // Forzar actualización de feedbacks abiertos
+            Object.keys(appState.respuestasUsuario).forEach(id => {
+                const checkBox = document.getElementById(`check-box-${id}`);
+                if (checkBox && !checkBox.classList.contains('hidden')) {
+                    actualizarContenidoFeedback(id);
+                }
+            });
+        }
+
+        // Scroll suave y efecto pulso de la teoría al ejercicio correspondiente
+        function scrollToExercise(sectionId) {
+            // En móviles, forzar cambio de pestaña a ejercicios antes del scroll
+            if (window.innerWidth < 768) {
+                switchTab('ejercicios');
+            }
+
+            const targetElement = document.getElementById(sectionId);
+            const container = document.getElementById('panelEjercicios');
+
+            if (targetElement) {
+                // Hacer scroll animado dentro del panel derecho
+                container.scrollTo({
+                    top: targetElement.offsetTop - container.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+
+                // Efecto de pulso estético para llamar la atención del usuario
+                targetElement.classList.add('pulse-active');
+                setTimeout(() => {
+                    targetElement.classList.remove('pulse-active');
+                }, 2000);
+            }
+        }
+
+        // Scroll suave desde ejercicios a su respectiva teoría
+        function scrollToTheory(theoryId) {
+            if (window.innerWidth < 768) {
+                switchTab('teoria');
+            }
+
+            const targetElement = document.getElementById(theoryId);
+            const container = document.getElementById('panelTeoria');
+
+            if (targetElement) {
+                container.scrollTo({
+                    top: targetElement.offsetTop - container.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+
+                targetElement.classList.add('pulse-active');
+                setTimeout(() => {
+                    targetElement.classList.remove('pulse-active');
+                }, 2000);
+            }
+        }
+
+        // Lógica de verificación interactiva
+        function verificarEjercicio(id) {
+            const inputVal = document.getElementById(`ans-${id}`).value.trim();
+            if (!inputVal) return;
+
+            appState.respuestasUsuario[id] = inputVal;
+            const checkBox = document.getElementById(`check-box-${id}`);
+            checkBox.classList.remove('hidden');
+
+            actualizarContenidoFeedback(id);
+        }
+
+        // Construcción dinámica del bloque de feedback (Académico o Brutal)
+        function actualizarContenidoFeedback(id) {
+            const checkBox = document.getElementById(`check-box-${id}`);
+            const userAns = appState.respuestasUsuario[id];
+            const models = appState.respuestasModelos[id];
+            const analiticaText = keysAnalisis[id];
+            const brutalText = feedbackBrutalDict[id];
+
+            // Formatear respuestas modelo como lista HTML
+            let listModelsHTML = models.map(m => `<li class="font-mono text-xs text-slate-700 dark:text-slate-300 select-all py-1 border-b border-dashed border-slate-200 dark:border-slate-800 last:border-none">• ${m}</li>`).join('');
+
+            checkBox.innerHTML = `
+                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-3 shadow-inner">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Resultados & Análisis</span>
+                        <div class="flex items-center gap-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${appState.feedbackBrutal ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'}">
+                                ${appState.feedbackBrutal ? 'Asesoría Brutal' : 'Estilo Estándar'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-xs font-bold text-slate-500 block mb-1">Tus Formulaciones Directas:</span>
+                        <p class="text-sm font-mono text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-950 px-3 py-1.5 rounded border border-slate-200 dark:border-slate-800">${escapeHTML(userAns)}</p>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-bold text-slate-500 block mb-1">Alternativas de Calidad Nativa (Haz click para copiar):</span>
+                        <ul class="bg-white dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 p-2.5">
+                            ${listModelsHTML}
+                        </ul>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg ${appState.feedbackBrutal ? 'bg-amber-50 dark:bg-amber-950/10 border border-amber-200/50 dark:border-amber-900/30 text-amber-900 dark:text-amber-200' : 'bg-slate-100 dark:bg-slate-850/60 border border-slate-200/40 text-slate-700 dark:text-slate-300'}">
+                        <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1 mb-1.5 ${appState.feedbackBrutal ? 'text-amber-800 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}">
+                            <i data-lucide="${appState.feedbackBrutal ? 'shield-alert' : 'info'}" class="w-4 h-4"></i>
+                            Análisis Técnico Profesional:
+                        </span>
+                        <p class="text-sm leading-relaxed">${appState.feedbackBrutal ? brutalText : analiticaText}</p>
+                    </div>
+
+                    <!-- Autoevaluación de Progreso -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <span class="text-xs font-bold text-slate-500">¿Lograste la precisión deseada?</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="calificarEjercicio('${id}', false)" id="btn-err-${id}" class="flex items-center gap-1 px-3 py-1 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold rounded-lg transition-colors ${appState.score[id] === false ? 'bg-rose-50 border-rose-300 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900' : ''}">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i> Corregir
+                            </button>
+                            <button onclick="calificarEjercicio('${id}', true)" id="btn-ok-${id}" class="flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-colors ${appState.score[id] === true ? 'ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-900' : ''}">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Correcto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            // Re-renderizar iconos en el nuevo bloque inyectado
+            lucide.createIcons();
+        }
+
+        // Registrar calificación y recalcular score
+        function calificarEjercicio(id, success) {
+            appState.score[id] = success;
+            
+            // Actualizar interfaz visual de los botones de calificación
+            const btnOk = document.getElementById(`btn-ok-${id}`);
+            const btnErr = document.getElementById(`btn-err-${id}`);
+
+            if (success) {
+                btnOk.classList.add('ring-2', 'ring-emerald-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
+                btnErr.classList.remove('bg-rose-50', 'border-rose-300', 'text-rose-700', 'dark:bg-rose-950/40', 'dark:text-rose-400', 'dark:border-rose-900');
+            } else {
+                btnOk.classList.remove('ring-2', 'ring-emerald-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
+                btnErr.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-700', 'dark:bg-rose-950/40', 'dark:text-rose-400', 'dark:border-rose-900');
+            }
+
+            actualizarProgresoGlobal();
+        }
+
+        // Actualizar barra de progreso global
+        function actualizarProgresoGlobal() {
+            const resueltos = Object.values(appState.score).filter(val => val === true).length;
+            const porcentaje = Math.round((resueltos / appState.totalEjercicios) * 100);
+
+            const bar = document.getElementById('progresoGlobal');
+            const txt = document.getElementById('textoProgreso');
+
+            bar.style.width = `${porcentaje}%`;
+            txt.textContent = `${resueltos}/${appState.totalEjercicios} (${porcentaje}%)`;
+        }
+
+        // Generador de Reporte Markdown para GitHub
+        function generarReporte() {
+            let markdownContent = `# REPORTE DE PROGRESO - UNIDAD 31: INGLÉS AVANZADO (PROYECTO ACADÉMICO / CORPORATIVO)\n\n`;
+            markdownContent += `## Alumno: David\n`;
+            markdownContent += `Fecha de Generación: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
+            
+            const resueltos = Object.values(appState.score).filter(val => val === true).length;
+            const porcentaje = Math.round((resueltos / appState.totalEjercicios) * 100);
+            markdownContent += `### Estado de Rendimiento General:\n`;
+            markdownContent += `- Ejercicios Completados con Precisión Nativa: ${resueltos} / ${appState.totalEjercicios} (${porcentaje}% de efectividad)\n\n`;
+            
+            markdownContent += `--- \n\n`;
+            markdownContent += `## DETALLE DE EJERCICIOS Y SINTAXIS APLICADA\n\n`;
+
+            const bloquesKeys = {
+                "1-1": "Be Going To - Análisis del trimestre con evidencia de pérdidas.",
+                "1-2": "Be Going To - Apertura de oficina con pago de depósito.",
+                "1-3": "Be Going To - Cliente sin disposición a escuchar recomendaciones.",
+                "2-1": "Will - Caída crítica de servidor de base de datos.",
+                "2-2": "Will - Promesa formal de entrega a tiempo.",
+                "2-3": "Will - Intuición sobre autoempleo en 15 años.",
+                "3-1": "Adverbios - 'Definitely won't' en política de precios.",
+                "3-2": "Adverbios - 'Will probably' exigencia de carga de estudio del MBA.",
+                "3-3": "Adverbios - Corrección sintáctica de 'Certainly won't' en firma de contrato.",
+                "4-1": "Modales + Well - 'May well' para cierre de ventas inminente.",
+                "4-2": "Modales + Well - 'Might well' por impacto logístico de huelga.",
+                "4-3": "Modales + Well - Robustecer mitigación de quejas con 'may well face'.",
+                "5-1": "Think/Doubt - Traslación de negación ante réplica de modelo de negocio.",
+                "5-2": "Think/Doubt - 'Would rather' en priorización presupuestaria de procesos.",
+                "5-3": "Think/Doubt - 'Doubt' para evaluar rebote bursátil antes del cierre fiscal.",
+                "6-1": "It + Adj + That - 'It is unlikely that' sobre auditoría del sistema ERP.",
+                "6-2": "It + Adj + That - 'It is inevitable that' para caída del rendimiento sin mantenimiento.",
+                "6-3": "It + Adj + That - Estructura personal con 'likely' sobre examen del MBA.",
+                "7-1": "Planes Continuos - 'Wondering whether to' en disyuntiva de externalización tributaria.",
+                "7-2": "Planes Continuos - 'Planning to start' por inicio de MBA coordinado.",
+                "7-3": "Planes Continuos - 'Thinking about expanding' para conceptualización de mercados anglosajones."
+            };
+
+            Object.keys(bloquesKeys).forEach(id => {
+                const ans = appState.respuestasUsuario[id] || "No resuelto en esta sesión.";
+                const isCorrect = appState.score[id] === true ? "Aprobado (Precisión Nativa ✔)" : "Por corregir / No verificado";
+                const models = appState.respuestasModelos[id].join(" | ");
+
+                markdownContent += `### Ejercicio ${id} - ${bloquesKeys[id]}\n`;
+                markdownContent += `- **Estado:** ${isCorrect}\n`;
+                markdownContent += `- **Tu respuesta:** \`${ans}\`\n`;
+                markdownContent += `- **Opciones modelo:** \`${models}\`\n`;
+                markdownContent += `- **Clave de Análisis Técnico:** _${keysAnalisis[id]}_\n\n`;
+            });
+
+            markdownContent += `\n\n--- \n*Reporte generado automáticamente desde la Plataforma Interactiva de Estudio de David. Conserva y sube este archivo como PROGRESS_REPORT.md a tu repositorio de GitHub para auditar tus avances.*`;
+
+            descargarArchivo(markdownContent, "PROGRESS_REPORT.md", "text/markdown");
+        }
+
+        // Lógica segura para descargar archivos
+        function descargarArchivo(contenido, nombreArchivo, contentType) {
+            const a = document.createElement("a");
+            const archivo = new Blob([contenido], {type: contentType});
+            a.href = URL.createObjectURL(archivo);
+            a.download = nombreArchivo;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        // Escape HTML para evitar inyecciones XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // Lógica de Modo Oscuro
+        function toggleDarkMode() {
+            appState.darkMode = !appState.darkMode;
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+
+            if (appState.darkMode) {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
